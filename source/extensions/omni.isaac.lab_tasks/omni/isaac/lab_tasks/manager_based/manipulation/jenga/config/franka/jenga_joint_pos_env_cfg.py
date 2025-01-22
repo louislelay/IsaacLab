@@ -46,6 +46,8 @@ class FrankaJengaEnvCfg(JengaEnvCfg):
             close_command_expr={"panda_finger_.*": 0.0},
         )
 
+        self.commands.object_pose.body_name = "panda_hand"
+
         # Block dimensions
         block_length = 0.15  # Length of a single block
         block_width = 0.05   # Width of a single block
