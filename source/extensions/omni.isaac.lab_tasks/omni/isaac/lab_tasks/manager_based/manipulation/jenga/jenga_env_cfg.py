@@ -103,7 +103,28 @@ class ObservationsCfg:
 
     # observation groups
     policy: PolicyCfg = PolicyCfg()
-    # subtask_terms: SubtaskCfg = SubtaskCfg()
+
+@configclass
+class EventCfg:
+    """Configuration for events."""
+
+    reset_robot_joints = EventTerm(
+        func=mdp.reset_joints_by_scale,
+        mode="reset",
+        params={
+            "position_range": (0.5, 1.5),
+            "velocity_range": (0.0, 0.0),
+        },
+    )
+    
+    reset_object_position = EventTerm(
+        func= mdp.reset_jenga,
+        mode="reset",
+        params={
+            "pose_range": {"x": (-0.1, 0.2), "y": (-0.10, 0.10)},
+            "asset_cfg": SceneEntityCfg("object_collection"),
+        },
+    )
 
 @configclass
 class TerminationsCfg:
@@ -136,14 +157,14 @@ class JengaEnvCfg(ManagerBasedRLEnvCfg):
     # Basic settings
     observations: ObservationsCfg = ObservationsCfg()
     actions: ActionsCfg = ActionsCfg()
-    curriculums : CurriculumCfg = CurriculumCfg()
     commands : CommandsCfg = CommandsCfg()
     # MDP settings
     terminations: TerminationsCfg = TerminationsCfg()
+    events: EventCfg = EventCfg()
+    curriculum : CurriculumCfg = CurriculumCfg()
 
     # Unused managers
     rewards = None
-    events = None
 
     def __post_init__(self):
         """Post initialization."""
