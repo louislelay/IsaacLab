@@ -30,7 +30,7 @@ def objects_position_in_robot_root_frame(
     robot_orient_w = robot.data.root_link_state_w[:, 3:7]  # Shape: (N_envs, 4)
 
     # Extract positions of all objects in the world frame
-    object_pos_w = rigid_object_collection.data.object_state_w[:, :, :3]  # Shape: (N_envs, N_objects, 3)
+    object_pos_w = rigid_object_collection.data.object_link_state_w[:, :, :3]  # Shape: (N_envs, N_objects, 3)
 
     # Compute positions of all objects in the robot's root frame
     # Iterate over the second dimension (objects) and compute transformations
@@ -41,27 +41,15 @@ def objects_position_in_robot_root_frame(
         # Extract the i-th object's position in the world frame
         obj_pos_w = object_pos_w[:, i, :]  # Shape: (N_envs, 3)
 
-        print("obj_pos_w")
-        print(obj_pos_w)
-
-        print("robot_pos_w")
-        print(robot_pos_w)
-
-        print("robot_orient_w")
-        print(robot_orient_w)
-
         # Transform the i-th object's position into the robot's root frame
         obj_pos_b, _ = subtract_frame_transforms(
             robot_pos_w,
             robot_orient_w,
             obj_pos_w
         )
-        print("obj_pos_b")
-        print(obj_pos_b)
-        object_pos_b[:, i, :] = obj_pos_b
 
-    # Resulting shape: (N_envs, N_objects, 3)
-    print("object_pos_b")
+        # Resulting shape: (N_envs, N_objects, 3)
+        object_pos_b[:, i, :] = obj_pos_b
 
     # Reshape the tensor to flatten object positions for concatenation or further processing
     # New shape: (N_envs, N_objects * 3)
