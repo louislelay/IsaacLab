@@ -15,33 +15,6 @@ from omni.isaac.lab.utils.math import subtract_frame_transforms
 if TYPE_CHECKING:
     from omni.isaac.lab.envs import ManagerBasedRLEnv
 
-# def objects_position_in_robot_root_frame(
-#     env: ManagerBasedRLEnv,
-#     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
-#     asset_cfg: SceneEntityCfg = SceneEntityCfg("object_collection"),
-# ) -> torch.Tensor:
-#     """The position of the object in the robot's root frame."""
-#     robot: RigidObject = env.scene[robot_cfg.name]
-#     # object: RigidObject = env.scene[object_cfg.name]
-#     rigid_object_collection: RigidObjectCollection = env.scene[asset_cfg.name]
-
-#     num_piece = 2 # select one of the piece of thge jenbga
-#     object_pos_w = rigid_object_collection.data.object_state_w[:, num_piece, :3]
-
-#     # object_pos_w = rigid_object_collection.data.object_link_state_w[:, :3]
-#     object_pos_b, _ = subtract_frame_transforms(
-#         robot.data.root_link_state_w[:, :3], robot.data.root_link_state_w[:, 3:7], object_pos_w
-#     )
-
-#     print("object_pos_b")
-#     print(object_pos_b)
-#     print(object_pos_b.shape)
-#     return object_pos_b
-
-
-
-
-
 def objects_position_in_robot_root_frame(
     env: ManagerBasedRLEnv,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
@@ -89,13 +62,9 @@ def objects_position_in_robot_root_frame(
 
     # Resulting shape: (N_envs, N_objects, 3)
     print("object_pos_b")
-    print(object_pos_b)
-    print(object_pos_b.shape)
 
-    # To make it be concatenate
+    # Reshape the tensor to flatten object positions for concatenation or further processing
+    # New shape: (N_envs, N_objects * 3)
     transformed_tensor = object_pos_b.reshape(2, -1)
-    print("transformed_tensor")
-    print(transformed_tensor)
-    print(transformed_tensor.shape)
 
     return transformed_tensor
