@@ -54,7 +54,7 @@ class FrankaJengaEnvCfg(JengaEnvCfg):
         block_height = 0.03  # Height of a single block
 
         # Starting position for the first block
-        start_pos = [0.5, 0.0, 0.0203]  # Adjust z to align blocks correctly
+        start_pos = [0.5, 0.0, 0.0120]  # Adjust z to align blocks correctly
 
         # Define colors for the blocks
         colors = [

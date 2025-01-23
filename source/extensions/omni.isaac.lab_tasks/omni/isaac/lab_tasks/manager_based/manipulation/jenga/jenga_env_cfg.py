@@ -100,7 +100,8 @@ class ObservationsCfg:
 
         def __post_init__(self):
             self.enable_corruption = True
-
+            self.concatenate_terms = True
+    
     # observation groups
     policy: PolicyCfg = PolicyCfg()
 
@@ -132,6 +133,13 @@ class TerminationsCfg:
 
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
+    jenga_dropping = DoneTerm(
+        func=mdp.jenga_tower_fell, 
+        params={
+            "asset_cfg": SceneEntityCfg("object_collection")
+        }
+    )
+
 @configclass
 class CurriculumCfg:
     """Curriculum terms for the MDP."""
@@ -157,12 +165,12 @@ class JengaEnvCfg(ManagerBasedRLEnvCfg):
     # Basic settings
     observations: ObservationsCfg = ObservationsCfg()
     actions: ActionsCfg = ActionsCfg()
-    commands : CommandsCfg = CommandsCfg()
+    commands: CommandsCfg = CommandsCfg()
     # MDP settings
     terminations: TerminationsCfg = TerminationsCfg()
     events: EventCfg = EventCfg()
-    curriculum : CurriculumCfg = CurriculumCfg()
-
+    curriculum: CurriculumCfg = CurriculumCfg()
+    
     # Unused managers
     rewards = None
 
@@ -170,7 +178,7 @@ class JengaEnvCfg(ManagerBasedRLEnvCfg):
         """Post initialization."""
         # general settings
         self.decimation = 5
-        self.episode_length_s = 30.0 #30.0
+        self.episode_length_s = 30.0
         # simulation settings
         self.sim.dt = 0.01  # 100Hz
         self.sim.render_interval = self.decimation
