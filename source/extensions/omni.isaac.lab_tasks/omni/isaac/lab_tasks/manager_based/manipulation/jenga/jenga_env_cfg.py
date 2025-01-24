@@ -175,15 +175,15 @@ class RewardsCfg:
         weight=5.0,
     )
 
-    # object_instability = RewTerm(
-    #     func=mdp.tower_stability_reward_acceleration,
-    #     params={
-    #         "acceleration_threshold": 1.0,  # Threshold for linear acceleration (m/s²)
-    #         "target_object_id": 17,        # Ignore target object
-    #         "instability_penalty": 0.1,        # Factor scaling the penalty for instability
-    #     },
-    #     weight=10.0,                     # Negative weight to penalize instability
-    # )
+    object_instability = RewTerm(
+        func=mdp.tower_stability_reward_acceleration,
+        params={
+            "acceleration_threshold": 1.0,  # Threshold for linear acceleration (m/s²)
+            "target_object_id": 17,        # Ignore target object
+            "instability_penalty": 0.1,        # Factor scaling the penalty for instability
+        },
+        weight=10.0,                     # Negative weight to penalize instability
+    )
 
     # action penalty
     action_rate = RewTerm(func=mdp.action_rate_l2, weight=-1e-4)
