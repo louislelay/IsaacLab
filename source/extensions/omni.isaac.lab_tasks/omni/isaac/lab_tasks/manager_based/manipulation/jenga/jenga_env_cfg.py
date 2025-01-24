@@ -18,7 +18,9 @@ from omni.isaac.lab.managers import SceneEntityCfg
 from omni.isaac.lab.managers import TerminationTermCfg as DoneTerm
 from omni.isaac.lab.scene import InteractiveSceneCfg
 from omni.isaac.lab.sensors.frame_transformer.frame_transformer_cfg import FrameTransformerCfg
+from omni.isaac.lab.sim.simulation_cfg import PhysxCfg, SimulationCfg
 from omni.isaac.lab.sim.spawners.from_files.from_files_cfg import GroundPlaneCfg, UsdFileCfg
+from omni.isaac.lab.sim.spawners.materials.physics_materials_cfg import RigidBodyMaterialCfg
 from omni.isaac.lab.utils import configclass
 from omni.isaac.lab.utils.assets import ISAAC_NUCLEUS_DIR
 
@@ -97,6 +99,7 @@ class ObservationsCfg:
         joint_pos = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel = ObsTerm(func=mdp.joint_vel_rel)
         objects_position = ObsTerm(func=mdp.objects_position_in_robot_root_frame)
+        # object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame, params={"target_object_id": 17})
         target_object_position = ObsTerm(func=mdp.generated_commands, params={"command_name": "object_pose"})
         actions = ObsTerm(func=mdp.last_action)
 
@@ -130,6 +133,70 @@ class EventCfg:
     )
 
 @configclass
+class RewardsCfg:
+    """Reward terms for the MDP."""
+
+    reaching_object = RewTerm(
+        func=mdp.object_ee_distance, 
+        params={
+            "std": 0.1,
+            "target_object_id": 17,
+        }, weight=1.0
+    )
+
+    lifting_object = RewTerm(
+        func=mdp.object_is_lifted, 
+        params={
+            "minimal_height": 0.1625,
+            "target_object_id": 17,
+        }, 
+        weight=15.0
+    )
+
+    object_goal_tracking = RewTerm(
+        func=mdp.object_goal_distance,
+        params={
+            "std": 0.3, 
+            "minimal_height": 0.1625, 
+            "command_name": "object_pose",
+            "target_object_id": 17,
+        },
+        weight=16.0,
+    )
+
+    object_goal_tracking_fine_grained = RewTerm(
+        func=mdp.object_goal_distance,
+        params={
+            "std": 0.05, 
+            "minimal_height": 0.1625, 
+            "command_name": "object_pose",
+            "target_object_id": 17,
+            },
+        weight=5.0,
+    )
+
+    # object_instability = RewTerm(
+    #     func=mdp.tower_stability_reward_acceleration,
+    #     params={
+    #         "acceleration_threshold": 1.0,  # Threshold for linear acceleration (m/s²)
+    #         "target_object_id": 17,        # Ignore target object
+    #         "instability_penalty": 0.1,        # Factor scaling the penalty for instability
+    #     },
+    #     weight=10.0,                     # Negative weight to penalize instability
+    # )
+
+    # action penalty
+    action_rate = RewTerm(func=mdp.action_rate_l2, weight=-1e-4)
+
+    joint_vel = RewTerm(
+        func=mdp.joint_vel_l2,
+        weight=-1e-4,
+        params={"asset_cfg": SceneEntityCfg("robot")},
+    )
+
+    terminating = RewTerm(func=mdp.is_terminated, weight=-2.0)
+
+@configclass
 class TerminationsCfg:
     """Termination terms for the MDP."""
 
@@ -154,19 +221,6 @@ class CurriculumCfg:
         func=mdp.modify_reward_weight, params={"term_name": "joint_vel", "weight": -1e-1, "num_steps": 10000}
     )
 
-@configclass
-class RewardsCfg:
-    """Reward terms for the MDP."""
-
-    # action penalty
-    action_rate = RewTerm(func=mdp.action_rate_l2, weight=-1e-4)
-
-    joint_vel = RewTerm(
-        func=mdp.joint_vel_l2,
-        weight=-1e-4,
-        params={"asset_cfg": SceneEntityCfg("robot")},
-    )
-
 ##
 # Environment configuration
 ##
@@ -177,6 +231,18 @@ class JengaEnvCfg(ManagerBasedRLEnvCfg):
 
     # Scene settings
     scene: ObjectTableSceneCfg = ObjectTableSceneCfg(num_envs=4096, env_spacing=2.5, replicate_physics=False)
+    # Sim settings
+    # sim: SimulationCfg = SimulationCfg(
+    #     physics_material=RigidBodyMaterialCfg(
+    #         static_friction=1.0,
+    #         dynamic_friction=1.0,
+    #     ),
+    #     physx=PhysxCfg(
+    #         bounce_threshold_velocity=0.2,
+    #         gpu_max_rigid_contact_count=2**20,
+    #         gpu_max_rigid_patch_count=2**23,
+    #     ),
+    # )
     # Basic settings
     observations: ObservationsCfg = ObservationsCfg()
     actions: ActionsCfg = ActionsCfg()
@@ -190,14 +256,16 @@ class JengaEnvCfg(ManagerBasedRLEnvCfg):
     def __post_init__(self):
         """Post initialization."""
         # general settings
-        self.decimation = 5
-        self.episode_length_s = 30.0
+        self.decimation = 2
+        self.episode_length_s = 5.0
         # simulation settings
         self.sim.dt = 0.01  # 100Hz
         self.sim.render_interval = self.decimation
-
+        self.sim.physx.gpu_max_rigid_patch_count = 2**23     # NOT SURE how to find the good values
         self.sim.physx.bounce_threshold_velocity = 0.2
         self.sim.physx.bounce_threshold_velocity = 0.01
         self.sim.physx.gpu_found_lost_aggregate_pairs_capacity = 1024 * 1024 * 4
-        self.sim.physx.gpu_total_aggregate_pairs_capacity = 16 * 1024
+        self.sim.physx.gpu_total_aggregate_pairs_capacity = 1024 * 1024 * 4 #16 * 1024 # NOT SURE how to find the good values
         self.sim.physx.friction_correlation_distance = 0.00625
+
+# otalAggregatePairsCapacity to 16401

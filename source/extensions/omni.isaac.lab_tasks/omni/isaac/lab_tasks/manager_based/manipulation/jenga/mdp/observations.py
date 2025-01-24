@@ -53,6 +53,34 @@ def objects_position_in_robot_root_frame(
 
     # Reshape the tensor to flatten object positions for concatenation or further processing
     # New shape: (N_envs, N_objects * 3)
-    transformed_tensor = object_pos_b.reshape(2, -1)
+    transformed_tensor = object_pos_b.reshape(env.num_envs, -1)
 
     return transformed_tensor
+
+
+def object_position_in_robot_root_frame(
+    env: ManagerBasedRLEnv,
+    robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("object_collection"),
+    target_object_id: int = 2,
+) -> torch.Tensor:
+    """The positions of all objects in the robot's root frame."""
+    # Retrieve the robot and the collection of rigid objects
+    robot: RigidObject = env.scene[robot_cfg.name]
+    rigid_object_collection: RigidObjectCollection = env.scene[asset_cfg.name]
+
+    # Extract positions and orientations for the robot
+    robot_pos_w = robot.data.root_link_state_w[:, :3]  # Shape: (N_envs, 3)
+    robot_orient_w = robot.data.root_link_state_w[:, 3:7]  # Shape: (N_envs, 4)
+
+    # Extract positions of all objects in the world frame
+    obj_pos_w = rigid_object_collection.data.object_link_state_w[:, target_object_id, :3]  # Shape: (N_envs, N_objects, 3)
+
+    # Transform the i-th object's position into the robot's root frame
+    obj_pos_b, _ = subtract_frame_transforms(
+        robot_pos_w,
+        robot_orient_w,
+        obj_pos_w
+    )
+
+    return obj_pos_b

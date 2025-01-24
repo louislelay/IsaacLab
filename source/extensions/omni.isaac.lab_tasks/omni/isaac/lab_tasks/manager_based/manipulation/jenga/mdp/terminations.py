@@ -47,10 +47,10 @@ def jenga_tower_fell(
     # - `object_link_state_w[:, :, 2]`: Current height of all pieces across environments.
     # - `default_object_state[:, :, 2]`: Initial height of all pieces across environments.
     # - `result` shape: (N, M), where N is the number of environments and M is the number of pieces.
-    result = rigid_object_collection.data.object_link_state_w[:, :, 2] < rigid_object_collection.data.default_object_state[:, :, 2]
-
+    result = rigid_object_collection.data.object_link_state_w[:, :, 2] < rigid_object_collection.data.default_object_state[:, :, 2] - 0.01
+    
     # Check if any piece in each environment is below its initial height
     # - `result.any(dim=1)`: Reduces the result along the pieces dimension (M) to (N,).
     result = result.any(dim=1)
-
+    
     return result
