@@ -24,6 +24,8 @@ if TYPE_CHECKING:
 def jenga_tower_fell(
     env: ManagerBasedRLEnv,
     asset_cfg: SceneEntityCfg,
+    target_object_id : int = 2,
+
 ) -> torch.Tensor:
     """
     Check if the Jenga tower has fallen based on the positions of its pieces.
@@ -48,6 +50,8 @@ def jenga_tower_fell(
     # - `default_object_state[:, :, 2]`: Initial height of all pieces across environments.
     # - `result` shape: (N, M), where N is the number of environments and M is the number of pieces.
     result = rigid_object_collection.data.object_link_state_w[:, :, 2] < rigid_object_collection.data.default_object_state[:, :, 2] - 0.01
+
+    result[:, target_object_id] = rigid_object_collection.data.object_link_state_w[:, target_object_id, 2] <  -0.05  # Exclude the target block
     
     # Check if any piece in each environment is below its initial height
     # - `result.any(dim=1)`: Reduces the result along the pieces dimension (M) to (N,).

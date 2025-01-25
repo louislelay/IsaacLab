@@ -99,7 +99,7 @@ class ObservationsCfg:
         joint_pos = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel = ObsTerm(func=mdp.joint_vel_rel)
         objects_position = ObsTerm(func=mdp.objects_position_in_robot_root_frame)
-        # object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame, params={"target_object_id": 17})
+        # object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame, params={"target_object_id": 0})
         target_object_position = ObsTerm(func=mdp.generated_commands, params={"command_name": "object_pose"})
         actions = ObsTerm(func=mdp.last_action)
 
@@ -140,15 +140,15 @@ class RewardsCfg:
         func=mdp.object_ee_distance, 
         params={
             "std": 0.1,
-            "target_object_id": 17,
+            "target_object_id": 0,
         }, weight=1.0
     )
 
     lifting_object = RewTerm(
         func=mdp.object_is_lifted, 
         params={
-            "minimal_height": 0.1625,
-            "target_object_id": 17,
+            "minimal_height": 0.2,
+            "target_object_id": 0,
         }, 
         weight=15.0
     )
@@ -157,9 +157,9 @@ class RewardsCfg:
         func=mdp.object_goal_distance,
         params={
             "std": 0.3, 
-            "minimal_height": 0.1625, 
+            "minimal_height": 0.2, 
             "command_name": "object_pose",
-            "target_object_id": 17,
+            "target_object_id": 0,
         },
         weight=16.0,
     )
@@ -168,22 +168,22 @@ class RewardsCfg:
         func=mdp.object_goal_distance,
         params={
             "std": 0.05, 
-            "minimal_height": 0.1625, 
+            "minimal_height": 0.2, 
             "command_name": "object_pose",
-            "target_object_id": 17,
+            "target_object_id": 0,
             },
         weight=5.0,
     )
 
-    object_instability = RewTerm(
-        func=mdp.tower_stability_reward_acceleration,
-        params={
-            "acceleration_threshold": 1.0,  # Threshold for linear acceleration (m/s²)
-            "target_object_id": 17,        # Ignore target object
-            "instability_penalty": 0.1,        # Factor scaling the penalty for instability
-        },
-        weight=10.0,                     # Negative weight to penalize instability
-    )
+    # object_instability = RewTerm(
+    #     func=mdp.tower_stability_reward_acceleration,
+    #     params={
+    #         "acceleration_threshold": 1.0,  # Threshold for linear acceleration (m/s²)
+    #         "target_object_id": 0,        # Ignore target object
+    #         "instability_penalty": 0.1,        # Factor scaling the penalty for instability
+    #     },
+    #     weight=1.0,                     # Negative weight to penalize instability
+    # )
 
     # action penalty
     action_rate = RewTerm(func=mdp.action_rate_l2, weight=-1e-4)
@@ -205,7 +205,8 @@ class TerminationsCfg:
     jenga_dropping = DoneTerm(
         func=mdp.jenga_tower_fell, 
         params={
-            "asset_cfg": SceneEntityCfg("object_collection")
+            "asset_cfg": SceneEntityCfg("object_collection"),
+            "target_object_id": 0,
         }
     )
 

@@ -67,8 +67,8 @@ class FrankaJengaEnvCfg(JengaEnvCfg):
         rigid_objects = {}
 
         # Number of layers and blocks per layer
-        num_layers = 6
-        blocks_per_layer = 3
+        num_layers = 1 #6
+        blocks_per_layer = 1 #3
 
         # Create the Jenga tower
         for layer in range(num_layers):
