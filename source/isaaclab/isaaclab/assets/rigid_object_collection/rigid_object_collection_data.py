@@ -72,6 +72,7 @@ class RigidObjectCollectionData:
         self._object_link_state_w = TimestampedBuffer()
         self._object_com_state_w = TimestampedBuffer()
         self._object_acc_w = TimestampedBuffer()
+        self._last_written_state = TimestampedBuffer()
 
     def update(self, dt: float):
         """Updates the data for the rigid object collection.
@@ -113,6 +114,24 @@ class RigidObjectCollectionData:
     ##
     # Properties.
     ##
+
+    @property
+    def last_written_state(self):
+        """Object state ``[pos, quat, lin_vel, ang_vel]`` in simulation world frame. Shape is (num_instances, num_objects, 13).
+
+        The position and orientation are of the rigid body's actor frame. Meanwhile, the linear and angular
+        velocities are of the rigid body's center of mass frame.
+        """
+
+        if self._last_written_state.timestamp < self._sim_timestamp:
+            # read data from simulation
+            pose = self._reshape_view_to_data(self._root_physx_view.get_transforms().clone())
+            pose[..., 3:7] = math_utils.convert_quat(pose[..., 3:7], to="wxyz")
+            velocity = self._reshape_view_to_data(self._root_physx_view.get_velocities())
+            # set the buffer data and timestamp
+            self._last_written_state.data = torch.cat((pose, velocity), dim=-1)
+            self._last_written_state.timestamp = self._sim_timestamp
+        return self._last_written_state.data
 
     @property
     def object_state_w(self):

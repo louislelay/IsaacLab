@@ -130,8 +130,12 @@ class JointAction(ActionTerm):
     def process_actions(self, actions: torch.Tensor):
         # store the raw actions
         self._raw_actions[:] = actions
+        # print ("raw action : ")
+        # print(self._raw_actions[:])
         # apply the affine transformations
         self._processed_actions = self._raw_actions * self._scale + self._offset
+        print ("processed action : ")
+        print(self._processed_actions)
         # clip actions
         if self.cfg.clip is not None:
             self._processed_actions = torch.clamp(

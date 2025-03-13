@@ -331,6 +331,8 @@ class RigidObjectCollection(AssetBase):
         view_ids = self._env_obj_ids_to_view_ids(env_ids, object_ids)
         self.root_physx_view.set_transforms(self.reshape_data_to_view(poses_xyzw), indices=view_ids)
 
+        self._data.last_written_state[env_ids[:, None], object_ids, :7] = object_pose.clone()
+
     def write_object_com_pose_to_sim(
         self,
         object_pose: torch.Tensor,
@@ -429,6 +431,9 @@ class RigidObjectCollection(AssetBase):
         self.root_physx_view.set_velocities(
             self.reshape_data_to_view(self._data.object_com_state_w[..., 7:]), indices=view_ids
         )
+
+        self._data.last_written_state[env_ids[:, None], object_ids, 7:] = object_velocity.clone()
+
 
     def write_object_link_velocity_to_sim(
         self,

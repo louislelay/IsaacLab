@@ -5,26 +5,26 @@
 
 import math
 
-import omni.isaac.lab.sim as sim_utils
-from omni.isaac.lab.assets import Articulation, ArticulationCfg, AssetBaseCfg, RigidObject, RigidObjectCfg, RigidObjectCollection, RigidObjectCollectionCfg
-from omni.isaac.lab.managers import EventTermCfg as EventTerm
-from omni.isaac.lab.managers import SceneEntityCfg
-from omni.isaac.lab.sensors import CameraCfg, FrameTransformerCfg
-from omni.isaac.lab.sensors.frame_transformer.frame_transformer_cfg import OffsetCfg
-from omni.isaac.lab.sim.schemas.schemas_cfg import RigidBodyPropertiesCfg
-from omni.isaac.lab.sim.spawners.from_files.from_files_cfg import UsdFileCfg
-from omni.isaac.lab.utils import configclass
-from omni.isaac.lab.utils.assets import ISAAC_NUCLEUS_DIR
+import isaaclab.sim as sim_utils
+from isaaclab.assets import Articulation, ArticulationCfg, AssetBaseCfg, RigidObject, RigidObjectCfg, RigidObjectCollection, RigidObjectCollectionCfg
+from isaaclab.managers import EventTermCfg as EventTerm
+from isaaclab.managers import SceneEntityCfg
+from isaaclab.sensors import CameraCfg, FrameTransformerCfg
+from isaaclab.sensors.frame_transformer.frame_transformer_cfg import OffsetCfg
+from isaaclab.sim.schemas.schemas_cfg import RigidBodyPropertiesCfg
+from isaaclab.sim.spawners.from_files.from_files_cfg import UsdFileCfg
+from isaaclab.utils import configclass
+from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 
-from omni.isaac.lab_tasks.manager_based.manipulation.jenga import mdp
-from omni.isaac.lab_tasks.manager_based.manipulation.jenga.jenga_env_cfg import JengaEnvCfg
+from isaaclab_tasks.manager_based.manipulation.jenga import mdp
+from isaaclab_tasks.manager_based.manipulation.jenga.jenga_env_cfg import JengaEnvCfg
 
 ##
 # Pre-defined configs
 ##
 
-from omni.isaac.lab.markers.config import FRAME_MARKER_CFG  # isort: skip
-from omni.isaac.lab_assets.franka import FRANKA_PANDA_CFG  # isort: skip
+from isaaclab.markers.config import FRAME_MARKER_CFG  # isort: skip
+from isaaclab_assets.robots.franka import FRANKA_PANDA_CFG  # isort: skip
 
 @configclass
 class FrankaJengaEnvCfg(JengaEnvCfg):
@@ -42,7 +42,9 @@ class FrankaJengaEnvCfg(JengaEnvCfg):
         self.actions.gripper_action = mdp.BinaryJointPositionActionCfg(
             asset_name="robot",
             joint_names=["panda_finger.*"],
+            # open_command_expr={"panda_finger_.*": 0.04},
             open_command_expr={"panda_finger_.*": 0.04},
+            # close_command_expr={"panda_finger_.*": 0.0},
             close_command_expr={"panda_finger_.*": 0.0},
         )
 

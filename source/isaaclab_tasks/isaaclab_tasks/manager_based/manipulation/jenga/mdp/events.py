@@ -12,18 +12,17 @@ import torch
 from typing import TYPE_CHECKING, Literal
 
 import carb
-import omni.physics.tensors.impl.api as physx
 
-import omni.isaac.lab.utils.math as math_utils
-from omni.isaac.lab.managers import SceneEntityCfg
-from omni.isaac.lab.actuators import ImplicitActuator
-from omni.isaac.lab.assets import Articulation, DeformableObject, RigidObject, AssetBase
-from omni.isaac.lab.managers import EventTermCfg, ManagerTermBase, SceneEntityCfg
-from omni.isaac.lab.terrains import TerrainImporter
+import isaaclab.utils.math as math_utils
+from isaaclab.managers import SceneEntityCfg
+from isaaclab.actuators import ImplicitActuator
+from isaaclab.assets import Articulation, DeformableObject, RigidObject, AssetBase
+from isaaclab.managers import EventTermCfg, ManagerTermBase, SceneEntityCfg
+from isaaclab.terrains import TerrainImporter
 
 
 if TYPE_CHECKING:
-    from omni.isaac.lab.envs import ManagerBasedEnv
+    from isaaclab.envs import ManagerBasedEnv
 
 
 def reset_jenga(
@@ -67,3 +66,8 @@ def reset_jenga(
 
         rigid_object_collection.write_object_link_pose_to_sim(object_state[..., :7], env_ids=torch.tensor([cur_env], device=env.device))
         rigid_object_collection.write_object_com_velocity_to_sim(object_state[..., 7:], env_ids=torch.tensor([cur_env], device=env.device))
+
+        print("WE WRITE :")
+        print(object_state)
+        print("WE GET : ")
+        print(rigid_object_collection.data.last_written_state)

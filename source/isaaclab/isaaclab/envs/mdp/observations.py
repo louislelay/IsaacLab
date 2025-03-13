@@ -118,6 +118,8 @@ def joint_pos_rel(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg = SceneEntityC
     """
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
+    print("joint pos obs : ")
+    print(asset.data.joint_pos[:, asset_cfg.joint_ids] - asset.data.default_joint_pos[:, asset_cfg.joint_ids])
     return asset.data.joint_pos[:, asset_cfg.joint_ids] - asset.data.default_joint_pos[:, asset_cfg.joint_ids]
 
 
@@ -144,6 +146,8 @@ def joint_vel(env: ManagerBasedEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("
     """
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
+    # print("joint vel obs : ")
+    # print(asset.data.joint_vel[:, asset_cfg.joint_ids])
     return asset.data.joint_vel[:, asset_cfg.joint_ids]
 
 
@@ -516,6 +520,8 @@ def last_action(env: ManagerBasedEnv, action_name: str | None = None) -> torch.T
     entire action tensor is returned.
     """
     if action_name is None:
+        # print("last action : ")
+        # print(env.action_manager.action)
         return env.action_manager.action
     else:
         return env.action_manager.get_term(action_name).raw_actions
@@ -528,4 +534,5 @@ Commands.
 
 def generated_commands(env: ManagerBasedRLEnv, command_name: str) -> torch.Tensor:
     """The generated command from command term in the command manager with the given name."""
+    # print(env.command_manager.get_command(command_name))
     return env.command_manager.get_command(command_name)

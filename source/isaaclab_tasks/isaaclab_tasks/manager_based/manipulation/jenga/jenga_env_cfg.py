@@ -5,24 +5,24 @@
 
 from dataclasses import MISSING
 
-import omni.isaac.lab.sim as sim_utils
-from omni.isaac.lab.assets import ArticulationCfg, AssetBaseCfg, DeformableObjectCfg, RigidObjectCfg
-from omni.isaac.lab.envs import ManagerBasedRLEnvCfg
-from omni.isaac.lab.managers import ActionTermCfg as ActionTerm
-from omni.isaac.lab.managers import CurriculumTermCfg as CurrTerm
-from omni.isaac.lab.managers import EventTermCfg as EventTerm
-from omni.isaac.lab.managers import ObservationGroupCfg as ObsGroup
-from omni.isaac.lab.managers import ObservationTermCfg as ObsTerm
-from omni.isaac.lab.managers import RewardTermCfg as RewTerm
-from omni.isaac.lab.managers import SceneEntityCfg
-from omni.isaac.lab.managers import TerminationTermCfg as DoneTerm
-from omni.isaac.lab.scene import InteractiveSceneCfg
-from omni.isaac.lab.sensors.frame_transformer.frame_transformer_cfg import FrameTransformerCfg
-from omni.isaac.lab.sim.simulation_cfg import PhysxCfg, SimulationCfg
-from omni.isaac.lab.sim.spawners.from_files.from_files_cfg import GroundPlaneCfg, UsdFileCfg
-from omni.isaac.lab.sim.spawners.materials.physics_materials_cfg import RigidBodyMaterialCfg
-from omni.isaac.lab.utils import configclass
-from omni.isaac.lab.utils.assets import ISAAC_NUCLEUS_DIR
+import isaaclab.sim as sim_utils
+from isaaclab.assets import ArticulationCfg, AssetBaseCfg, DeformableObjectCfg, RigidObjectCfg
+from isaaclab.envs import ManagerBasedRLEnvCfg
+from isaaclab.managers import ActionTermCfg as ActionTerm
+from isaaclab.managers import CurriculumTermCfg as CurrTerm
+from isaaclab.managers import EventTermCfg as EventTerm
+from isaaclab.managers import ObservationGroupCfg as ObsGroup
+from isaaclab.managers import ObservationTermCfg as ObsTerm
+from isaaclab.managers import RewardTermCfg as RewTerm
+from isaaclab.managers import SceneEntityCfg
+from isaaclab.managers import TerminationTermCfg as DoneTerm
+from isaaclab.scene import InteractiveSceneCfg
+from isaaclab.sensors.frame_transformer.frame_transformer_cfg import FrameTransformerCfg
+from isaaclab.sim.simulation_cfg import PhysxCfg, SimulationCfg
+from isaaclab.sim.spawners.from_files.from_files_cfg import GroundPlaneCfg, UsdFileCfg
+from isaaclab.sim.spawners.materials.physics_materials_cfg import RigidBodyMaterialCfg
+from isaaclab.utils import configclass
+from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 
 from . import mdp
 
@@ -127,6 +127,7 @@ class EventCfg:
         func= mdp.reset_jenga,
         mode="reset",
         params={
+            # "pose_range": {"x": (-0., 0.), "y": (-0.0, 0.0)}, 
             "pose_range": {"x": (-0.1, 0.2), "y": (-0.10, 0.10)},
             "asset_cfg": SceneEntityCfg("object_collection"),
         },
@@ -143,11 +144,11 @@ class RewardsCfg:
             "target_object_id": 0,
         }, weight=1.0
     )
-
+    
     lifting_object = RewTerm(
         func=mdp.object_is_lifted, 
         params={
-            "minimal_height": 0.2,
+            "minimal_height": 0.04,
             "target_object_id": 0,
         }, 
         weight=15.0
@@ -157,7 +158,7 @@ class RewardsCfg:
         func=mdp.object_goal_distance,
         params={
             "std": 0.3, 
-            "minimal_height": 0.2, 
+            "minimal_height": 0.04, 
             "command_name": "object_pose",
             "target_object_id": 0,
         },
@@ -168,22 +169,12 @@ class RewardsCfg:
         func=mdp.object_goal_distance,
         params={
             "std": 0.05, 
-            "minimal_height": 0.2, 
+            "minimal_height": 0.04, 
             "command_name": "object_pose",
             "target_object_id": 0,
             },
         weight=5.0,
     )
-
-    # object_instability = RewTerm(
-    #     func=mdp.tower_stability_reward_acceleration,
-    #     params={
-    #         "acceleration_threshold": 1.0,  # Threshold for linear acceleration (m/s²)
-    #         "target_object_id": 0,        # Ignore target object
-    #         "instability_penalty": 0.1,        # Factor scaling the penalty for instability
-    #     },
-    #     weight=1.0,                     # Negative weight to penalize instability
-    # )
 
     # action penalty
     action_rate = RewTerm(func=mdp.action_rate_l2, weight=-1e-4)
@@ -193,8 +184,6 @@ class RewardsCfg:
         weight=-1e-4,
         params={"asset_cfg": SceneEntityCfg("robot")},
     )
-
-    terminating = RewTerm(func=mdp.is_terminated, weight=-2.0)
 
 @configclass
 class TerminationsCfg:
