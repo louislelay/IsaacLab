@@ -330,6 +330,9 @@ class RigidObjectCollection(AssetBase):
         # convert the quaternion from wxyz to xyzw
         poses_xyzw = self._data.object_link_state_w[..., :7].clone()
         poses_xyzw[..., 3:] = math_utils.convert_quat(poses_xyzw[..., 3:], to="xyzw")
+        # Update manually written state buffer
+        self._data._last_written_state_w.data[env_ids] = root_state.clone()
+        self._data._last_written_state_w.timestamp = self._data._sim_timestamp
         # set into simulation
         view_ids = self._env_obj_ids_to_view_ids(env_ids, object_ids)
         self.root_physx_view.set_transforms(self.reshape_data_to_view(poses_xyzw), indices=view_ids)
@@ -427,6 +430,9 @@ class RigidObjectCollection(AssetBase):
         self._data.object_state_w[env_ids[:, None], object_ids, 7:] = object_velocity.clone()
         self._data.object_acc_w[env_ids[:, None], object_ids] = 0.0
 
+        # Update manually written state buffer
+        self._data._last_written_state_w.data[env_ids] = root_state.clone()
+        self._data._last_written_state_w.timestamp = self._data._sim_timestamp
         # set into simulation
         view_ids = self._env_obj_ids_to_view_ids(env_ids, object_ids)
         self.root_physx_view.set_velocities(
