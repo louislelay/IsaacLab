@@ -67,6 +67,7 @@ class RigidObjectData:
         self._root_link_state_w = TimestampedBuffer()
         self._root_com_state_w = TimestampedBuffer()
         self._body_acc_w = TimestampedBuffer()
+        self._last_written_state_w = TimestampedBuffer()
 
     def update(self, dt: float):
         """Updates the data for the rigid object.
@@ -230,6 +231,14 @@ class RigidObjectData:
         """
         forward_w = math_utils.quat_apply(self.root_link_quat_w, self.FORWARD_VEC_B)
         return torch.atan2(forward_w[:, 1], forward_w[:, 0])
+
+    @property
+    def last_written_state(self):
+        """Last explicitly set state `[pos, quat, lin_vel, ang_vel]` in world frame.
+        
+        This is only updated when the object's state is manually modified, not through physics updates.
+        """
+        return self._last_written_state_w.data
 
     ##
     # Derived properties.

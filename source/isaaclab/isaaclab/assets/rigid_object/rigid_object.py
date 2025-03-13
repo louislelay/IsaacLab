@@ -156,7 +156,9 @@ class RigidObject(AssetBase):
             root_state: Root state in simulation frame. Shape is (len(env_ids), 13).
             env_ids: Environment indices. If None, then all indices are used.
         """
-
+        # Update manually written state buffer
+        self._data._last_written_state_w.data[env_ids] = root_state.clone()
+        self._data._last_written_state_w.timestamp = self._data._sim_timestamp
         # set into simulation
         self.write_root_pose_to_sim(root_state[:, :7], env_ids=env_ids)
         self.write_root_velocity_to_sim(root_state[:, 7:], env_ids=env_ids)
@@ -171,6 +173,9 @@ class RigidObject(AssetBase):
             root_state: Root state in simulation frame. Shape is (len(env_ids), 13).
             env_ids: Environment indices. If None, then all indices are used.
         """
+        # Update manually written state buffer
+        self._data._last_written_state_w.data[env_ids] = root_state.clone()
+        self._data._last_written_state_w.timestamp = self._data._sim_timestamp
         # set into simulation
         self.write_root_com_pose_to_sim(root_state[:, :7], env_ids=env_ids)
         self.write_root_com_velocity_to_sim(root_state[:, 7:], env_ids=env_ids)
@@ -185,6 +190,9 @@ class RigidObject(AssetBase):
             root_state: Root state in simulation frame. Shape is (len(env_ids), 13).
             env_ids: Environment indices. If None, then all indices are used.
         """
+        # Update manually written state buffer
+        self._data._last_written_state_w.data[env_ids] = root_state.clone()
+        self._data._last_written_state_w.timestamp = self._data._sim_timestamp
         # set into simulation
         self.write_root_link_pose_to_sim(root_state[:, :7], env_ids=env_ids)
         self.write_root_link_velocity_to_sim(root_state[:, 7:], env_ids=env_ids)
