@@ -233,6 +233,12 @@ class RigidObjectCollection(AssetBase):
             env_ids: Environment indices. If None, then all indices are used.
             object_ids: Object indices. If None, then all indices are used.
         """
+        # record last manually written object state
+        eidx = env_ids if env_ids is not None else slice(None)
+        oidx = object_ids if object_ids is not None else slice(None)
+        self._data._last_written_state_w.data[eidx if isinstance(eidx, slice) else eidx[:, None], oidx] = object_state.clone()
+        self._data._last_written_state_w.timestamp = self._data._sim_timestamp
+        # now the individual pieces
         self.write_object_link_pose_to_sim(object_state[..., :7], env_ids=env_ids, object_ids=object_ids)
         self.write_object_com_velocity_to_sim(object_state[..., 7:], env_ids=env_ids, object_ids=object_ids)
 

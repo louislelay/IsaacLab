@@ -81,6 +81,8 @@ class RigidObjectData:
         self._root_state_w = TimestampedBuffer()
         self._root_link_state_w = TimestampedBuffer()
         self._root_com_state_w = TimestampedBuffer()
+        # -- manually written state
+        self._last_written_state_w = TimestampedBuffer()
 
     def update(self, dt: float):
         """Updates the data for the rigid object.
@@ -333,6 +335,11 @@ class RigidObjectData:
             self._body_com_pose_b.timestamp = self._sim_timestamp
 
         return self._body_com_pose_b.data
+    
+    @property
+    def last_written_state(self) -> torch.Tensor:
+        """Last state `[pos, quat, lin_vel, ang_vel]` manually written via write_*_to_sim."""
+        return self._last_written_state_w.data
 
     ##
     # Derived Properties.

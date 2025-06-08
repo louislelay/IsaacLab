@@ -162,6 +162,11 @@ class RigidObject(AssetBase):
             root_state: Root state in simulation frame. Shape is (len(env_ids), 13).
             env_ids: Environment indices. If None, then all indices are used.
         """
+        # record last manually written state
+        idx = env_ids if env_ids is not None else slice(None)
+        self._data._last_written_state_w.data[idx] = root_state.clone()
+        self._data._last_written_state_w.timestamp = self._data._sim_timestamp
+        # now the individual pieces
         self.write_root_link_pose_to_sim(root_state[:, :7], env_ids=env_ids)
         self.write_root_com_velocity_to_sim(root_state[:, 7:], env_ids=env_ids)
 
@@ -175,6 +180,11 @@ class RigidObject(AssetBase):
             root_state: Root state in simulation frame. Shape is (len(env_ids), 13).
             env_ids: Environment indices. If None, then all indices are used.
         """
+        # record last manually written CoM‐state
+        idx = env_ids if env_ids is not None else slice(None)
+        self._data._last_written_state_w.data[idx] = root_state.clone()
+        self._data._last_written_state_w.timestamp = self._data._sim_timestamp
+        # now the individual pieces
         self.write_root_com_pose_to_sim(root_state[:, :7], env_ids=env_ids)
         self.write_root_com_velocity_to_sim(root_state[:, 7:], env_ids=env_ids)
 
@@ -188,6 +198,11 @@ class RigidObject(AssetBase):
             root_state: Root state in simulation frame. Shape is (len(env_ids), 13).
             env_ids: Environment indices. If None, then all indices are used.
         """
+        # record last manually written link‐state
+        idx = env_ids if env_ids is not None else slice(None)
+        self._data._last_written_state_w.data[idx] = root_state.clone()
+        self._data._last_written_state_w.timestamp = self._data._sim_timestamp
+        # now the individual pieces
         self.write_root_link_pose_to_sim(root_state[:, :7], env_ids=env_ids)
         self.write_root_link_velocity_to_sim(root_state[:, 7:], env_ids=env_ids)
 
